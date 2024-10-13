@@ -7,7 +7,7 @@
       community.aws.ec2_instance:
         key_name: MyKeyPair                
         instance_type: t2.micro
-        image_id: ami-0c55b159cbfafe1f0    # E Ubuntu AMI
+        image_id: ami-0c55b159cbfafe1f0    # Ubuntu AMI
         region: us-east-1
         wait: yes
         count: 1
