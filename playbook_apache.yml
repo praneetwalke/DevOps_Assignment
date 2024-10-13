@@ -1,0 +1,23 @@
+---
+- name: Install and configure Apache web server
+  hosts: webserver
+  become: yes
+  tasks:
+    - name: Update apt package manager
+      apt:
+        update_cache: yes
+
+    - name: Install Apache web server
+      apt:
+        name: apache2
+        state: present
+      notify: restart apache
+
+  handlers:
+    - name: restart apache
+      service:
+        name: apache2
+        state: restarted
+
+  vars:
+    ansible_ssh_private_key_file: /home/ubuntu/.ssh/mykeypair.pem    

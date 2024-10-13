@@ -1,0 +1,22 @@
+---
+- name: Clone application code from GitHub
+  hosts: webserver
+  become: yes
+  tasks:
+    - name: Install Git
+      apt:
+        name: git
+        state: present
+
+    - name: Clone Git repository
+      git:
+        repo: "https://github.com/praneetwalke/DevOps_Assignment.git"   
+        dest: /var/www/html
+        update: yes
+
+    - name: Set ownership of web directory to Apache user
+      file:
+        path: /var/www/html
+        owner: www-data
+        group: www-data
+        recurse: yes
