@@ -1,0 +1,46 @@
+---
+- name: Install and configure web server
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install Apache
+      apt:
+        name: apache2
+        state: present
+        
+
+    - name: Start Apache
+      service:
+        name: apache2
+        state: started
+        enabled: yes
+
+    - name: Create self-signed certificate
+      shell: |
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+        -keyout /etc/ssl/private/apache-selfsigned.key \
+        -out /etc/ssl/certs/apache-selfsigned.crt \
+        -subj "/CN=localhost"
+
+    - name: Configure Apache for SSL
+      copy:
+        content: |
+          <VirtualHost *:443>
+            ServerAdmin admin@localhost
+            DocumentRoot /var/www/html
+            SSLEngine on
+            SSLCertificateFile /etc/ssl/certs/apache-selfsigned.crt
+            SSLCertificateKeyFile /etc/ssl/private/apache-selfsigned.key
+          </VirtualHost>
+        dest: /etc/apache2/sites-available/default-ssl.conf
+
+    - name: Enable SSL module
+      command: a2enmod ssl
+
+    - name: Enable SSL site
+      command: a2ensite default-ssl
+
+    - name: Restart Apache to apply changes
+      service:
+        name: apache2
+        state: restarted
