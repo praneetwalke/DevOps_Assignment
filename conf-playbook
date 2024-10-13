@@ -1,0 +1,32 @@
+---
+- name: Apply security best practices to Apache
+  hosts: webserver
+  become: yes
+  tasks:
+    - name: Disable directory listing in Apache
+      lineinfile:
+        path: /etc/apache2/apache2.conf
+        regexp: 'Options Indexes'
+        line: 'Options -Indexes'
+        state: present
+      notify: restart apache
+
+    - name: Disable TRACE HTTP method in Apache
+      lineinfile:
+        path: /etc/apache2/conf-available/security.conf
+        regexp: 'TraceEnable On'
+        line: 'TraceEnable Off'
+        state: present
+      notify: restart apache
+
+    - name: Set secure file permissions on web directory
+      file:
+        path: /var/www/html
+        mode: '0755'
+        recurse: yes
+
+  handlers:
+    - name: restart apache
+      service:
+        name: apache2
+        state: restarted
